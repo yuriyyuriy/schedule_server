@@ -11,7 +11,6 @@ var classSchema = new Schema({
 	semester: { type: String, required: true },
 	description: String,
 	reviews: [String]
-	[reviews]
 });
 
 // Export the Mongoose model

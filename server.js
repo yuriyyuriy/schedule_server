@@ -260,6 +260,181 @@ verificationRoute.post(function(req, res) {
 
 }
 
+/*
+GET/POST routes for the classes
+
+
+
+*/
+classesRoute.get(function(req, res) {
+	where={};
+	limit=0;
+	skip=0;
+	sort={};
+	select={};
+	if (req.query['where']){
+		where= JSON.parse(req.query['where']);
+	}
+	if (req.query['limit']){
+		limit= parseInt(req.query['limit']);
+	}
+	if (req.query['sort']){
+		sort= JSON.parse(req.query['sort']);
+	}
+	if (req.query['select']){
+		select= JSON.parse(req.query['select']);
+	}
+	if (req.query['skip']){
+		skip= parseInt(req.query['skip']);
+	}
+
+
+	var cur_query= classes_model.find(where).
+	limit(limit).
+	sort(sort).
+	select(select).
+	skip(skip);
+	var callback= function(err,classes){
+		if (err){
+	        res.status(500).json({ message: 'Database error', data: []});
+        	res.end();
+	    }
+	    else{
+	    	res.json({"message":"OK", "data":classes});
+		}
+	};
+	if ((req.query['count']=="true")|(req.query['count']=='"true"')){
+		cur_query.count().exec(callback);
+	}
+	else{
+		cur_query.exec(callback);
+	}
+  
+});
+classesRoute.post(function(req, res) {
+	if((req.body.crn==null)||(req.body.condensed==null)||(req.body.full_name==null)||(req.body.year==null)||(req.body.semester==null)){
+		res.status(500).json({message: "You're missing certain information about the class", data: []});
+	}
+	else{
+		classes_model.findOne({ 'crn': req.body.crn, 'year': req.body.year, 'semester': req.body.semester }, function(err, found_class){
+			if (found_class){
+				res.status(500).json({message: "This class for the year/semester already exists, please choose another one", data: []});
+			}
+			else{
+				var new_class = new classes_model();
+			    new_class.crn = req.body.crn;
+				new_class.condensed: req.body.condensed;
+				new_class.full_name: req.body.full_name
+				new_class.year = req.body.year;
+				new_class.semester = req.body.semester;
+
+				if (req.body.description){
+					new_class.description= req.body.description;
+				}
+
+			    // save the bear and check for errors
+			    new_class.save(function(err) {
+			        if (err){
+			            res.status(500).json({ message: 'Database error', data: []});
+        				res.end();
+        			}
+        			else{
+			        	res.status(201).json({ message: 'Class created with crn '+new_class.crn, data: new_class });
+			    	}
+			    });
+			}
+		});
+	}
+});
+classesRoute.options(function(req, res) {
+	res.writeHead(200);
+    res.end();
+});
+classesIDRoute.get(function(req, res) {
+	classes_model.findById(req.params.id, function(err, found_class) {
+            if (err){
+                res.status(500).json({ message: 'Database error', data: []});
+            	res.end();
+            }
+            else if(!found_class){
+            	res.status(404).json({ message: 'Class not found', data: []});
+            }
+            else{
+            	res.json({ message:'OK', data:found_class});
+            }
+    });
+});
+classesIDRoute.put(function(req, res) {
+	classes_model.findById(req.params.id, function(err, found_class) {
+		if (!found_class){
+			res.status(404).json({ message: 'Class not found', data: []});
+		}
+		else{
+	        if (err)
+	            res.status(500).json({ message: 'Database error', data: []});
+        	else if((req.body.crn==null)||(req.body.year==null)||(req.body.semester==null)){
+				res.status(500).json({message: "You need both a crn and year/semester to update", data: []});
+			}
+			else{ 	
+		        found_class.crn = req.body.crn;
+		        found_class.year = req.body.year;
+		        found_class.semester= req.body.semester;
+		        if (req.body.description){
+		        	found_class.description= req.body.description;
+		        }
+		        if (req.body.full_name){
+		        	found_class.full_name= req.body.full_name;
+		        }
+		        if (req.body.condensed){
+		        	found_class.condensed= req.body.condensed;
+		        }
+
+
+	    		classes_model.findOne({ $and: [ { 'crn': req.body.crn }, { 'year': req.body.year }, { 'semester': req.body.semester } ] }, function(err, i_class){
+	    			if (err){
+		            	res.status(500).json({ message: 'Database error', data: []});
+					}
+					else{
+		    			if ((i_class)&&(i_class._id!=req.params.id)){
+							res.status(500).json({message: "CRN + Semester + Year combination already exists, please choose another one", data: []});
+						}
+						else{
+		        			found_class.save(function(err) {
+				            if (err){
+				            	res.status(500).json({ message: 'Database error', data: []});
+        						res.end();
+        					}
+        					else{
+				            	res.json({ message: 'Class updated', data:found_class });
+				        	}
+				        	});
+				        }
+			    	}
+			    });
+    		}
+    	}
+
+    });
+});
+classesIDRoute.delete(function(req, res) {
+	classes_model.remove({
+            _id: req.params.id
+        }, function(err, found_class) {
+            if (err){
+                res.status(500).json({ message: 'Database error', data: []});
+            }
+            else if ((found_class==null)||(found_class==undefined)){
+            	res.status(404).json({ message: 'Class not found', data: []});
+            }
+            else if(found_class.result.n === 0){
+            	res.status(404).json({ message: 'Class not found', data: []});
+            }
+            else{
+            	res.status(200).json({ message: 'Class deleted', data: [] });
+        	}
+    });
+});
+
 // Start the server
 app.listen(port);
 console.log('Server running on port ' + port);

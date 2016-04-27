@@ -64,10 +64,10 @@ app.use('/api', router);
 
 var usersRoute= router.route('/users');
 var usersIDRoute= router.route('/users/:id');
-var tasksRoute= router.route('/classes');
-var tasksIDRoute= router.route('/classes/:id');
+var classesRoute= router.route('/classes');
+var classesIDRoute= router.route('/classes/:id');
 var reviewsRoute= router.route('/reviews');
-var tasksIDRoute= router.route('/reviews/:id');
+var reviewsIDRoute= router.route('/reviews/:id');
 var verificationRoute= router.route('/verify');
 
 
@@ -258,7 +258,7 @@ verificationRoute.post(function(req, res) {
     	});
 	}
 
-}
+});
 
 /*
 GET/POST routes for the classes
@@ -323,8 +323,8 @@ classesRoute.post(function(req, res) {
 			else{
 				var new_class = new classes_model();
 			    new_class.crn = req.body.crn;
-				new_class.condensed: req.body.condensed;
-				new_class.full_name: req.body.full_name
+				new_class.condensed= req.body.condensed;
+				new_class.full_name= req.body.full_name
 				new_class.year = req.body.year;
 				new_class.semester = req.body.semester;
 
@@ -431,6 +431,183 @@ classesIDRoute.delete(function(req, res) {
             }
             else{
             	res.status(200).json({ message: 'Class deleted', data: [] });
+        	}
+    });
+});
+
+/*
+GET/POST routes for the reviews
+
+
+
+*/
+reviewsRoute.get(function(req, res) {
+	where={};
+	limit=0;
+	skip=0;
+	sort={};
+	select={};
+	if (req.query['where']){
+		where= JSON.parse(req.query['where']);
+	}
+	if (req.query['limit']){
+		limit= parseInt(req.query['limit']);
+	}
+	if (req.query['sort']){
+		sort= JSON.parse(req.query['sort']);
+	}
+	if (req.query['select']){
+		select= JSON.parse(req.query['select']);
+	}
+	if (req.query['skip']){
+		skip= parseInt(req.query['skip']);
+	}
+
+
+	var cur_query= reviews_model.find(where).
+	limit(limit).
+	sort(sort).
+	select(select).
+	skip(skip);
+	var callback= function(err,reviews){
+		if (err){
+	        res.status(500).json({ message: 'Database error', data: []});
+        	res.end();
+	    }
+	    else{
+	    	res.json({"message":"OK", "data":reviews});
+		}
+	};
+	if ((req.query['count']=="true")|(req.query['count']=='"true"')){
+		cur_query.count().exec(callback);
+	}
+	else{
+		cur_query.exec(callback);
+	}
+  
+});
+reviewsRoute.post(function(req, res) {
+	if((req.body.user_id==null)||(req.body.class_id==null)||(req.body.rating==null)||(req.body.text==null)){
+		res.status(500).json({message: "You're missing certain information about the reviews", data: []});
+	}
+	else{
+		reviews_model.findOne({ 'crn': req.body.crn, 'year': req.body.year, 'semester': req.body.semester }, function(err, found_review){
+			if (found_review){
+				res.status(500).json({message: "This review already exists, please choose another one", data: []});
+			}
+			else{
+				var new_review = new reviews_model();
+			    new_review.user_id = req.body.user_id;
+				new_review.class_id= req.body.class_id;
+				new_review.rating= req.body.rating;
+				new_review.text = req.body.text;
+
+				if (req.body.average_gpa){
+					new_review.average_gpa= req.body.average_gpa;
+				}
+				if (req.body.workload){
+					new_review.workload= req.body.workload;
+				}
+			    // save the bear and check for errors
+			    new_review.save(function(err) {
+			        if (err){
+			            res.status(500).json({ message: 'Database error', data: []});
+        				res.end();
+        			}
+        			else{
+			        	res.status(201).json({ message: 'New review created for '+new_review.class_id, data: new_review });
+			    	}
+			    });
+			}
+		});
+	}
+});
+reviewsRoute.options(function(req, res) {
+	res.writeHead(200);
+    res.end();
+});
+reviewsIDRoute.get(function(req, res) {
+	reviews_model.findById(req.params.id, function(err, found_review) {
+            if (err){
+                res.status(500).json({ message: 'Database error', data: []});
+            	res.end();
+            }
+            else if(!found_class){
+            	res.status(404).json({ message: 'Review not found', data: []});
+            }
+            else{
+            	res.json({ message:'OK', data:found_review});
+            }
+    });
+});
+reviewsIDRoute.put(function(req, res) {
+	reviews_model.findById(req.params.id, function(err, found_review) {
+		if (!found_review){
+			res.status(404).json({ message: 'Review not found', data: []});
+		}
+		else{
+	        if (err)
+	            res.status(500).json({ message: 'Database error', data: []});
+        	else if((req.body.class_id==null)||(req.body.user_id==null)||(req.body.rating==null)||(req.body.text==null)){
+				res.status(500).json({message: "You need both a more information about the review to update", data: []});
+			}
+			else{ 	
+		        found_review.class_id = req.body.class_id;
+		        found_review.user_id = req.body.user_id;
+		        found_review.rating= req.body.rating;
+		        found_review.text= req.body.text;
+		        if (req.body.average_gpa){
+		        	found_review.average_gpa= req.body.average_gpa;
+		        }
+		        if (req.body.workload){
+		        	found_review.workload= req.body.workload;
+		        }
+		        if (req.body.condensed){
+		        	found_class.condensed= req.body.condensed;
+		        }
+
+
+	    		reviews_model.findOne({ $and: [ { 'class_id': req.body.crn }, { 'user_id': req.body.year } ] }, function(err, i_review){
+	    			if (err){
+		            	res.status(500).json({ message: 'Database error', data: []});
+					}
+					else{
+		    			if ((i_review)&&(i_review._id!=req.params.id)){
+							res.status(500).json({message: "Cannot create another review for same class by same user", data: []});
+						}
+						else{
+		        			found_review.save(function(err) {
+				            if (err){
+				            	res.status(500).json({ message: 'Database error', data: []});
+        						res.end();
+        					}
+        					else{
+				            	res.json({ message: 'Review updated', data:found_review });
+				        	}
+				        	});
+				        }
+			    	}
+			    });
+    		}
+    	}
+
+    });
+});
+reviewsIDRoute.delete(function(req, res) {
+	reviews_model.remove({
+            _id: req.params.id
+        }, function(err, found_review) {
+            if (err){
+                res.status(500).json({ message: 'Database error', data: []});
+            }
+            else if ((found_review==null)||(found_review==undefined)){
+            	res.status(404).json({ message: 'Review not found', data: []});
+            }
+            else if(found_review.result.n === 0){
+            	res.status(404).json({ message: 'Review not found', data: []});
+            }
+            else{
+            	res.status(200).json({ message: 'Review deleted', data: [] });
         	}
     });
 });

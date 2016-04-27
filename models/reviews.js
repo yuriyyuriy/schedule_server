@@ -9,7 +9,7 @@ var reviewSchema = new Schema({
 	rating: { type: String, required: true },
 	text: { type: String, required: true },
 	average_gpa: String,
-	workload
+	workload: String
 });
 
 // Export the Mongoose model

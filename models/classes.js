@@ -14,4 +14,4 @@ var classSchema = new Schema({
 });
 
 // Export the Mongoose model
-module.exports = mongoose.model('class', classSchema);
+module.exports = mongoose.model('classes', classSchema);

@@ -14,9 +14,9 @@ var userSchema = new Schema({
   	dateCreated: { type: Date, default: Date.now }
 });
 
-userSchema.pre('save', function(next) {
+/*userSchema.pre('save', function(next) {
     var user = this;
-
+    console.log("saving user");
     // only hash the password if it has been modified (or is new)
     if (!user.isModified('password')) return next();
 
@@ -41,6 +41,6 @@ userSchema.methods.comparePassword = function(candidatePassword, cb) {
         cb(null, isMatch);
     });
 };
-
+*/
 // Export the Mongoose model
 module.exports = mongoose.model('users', userSchema);

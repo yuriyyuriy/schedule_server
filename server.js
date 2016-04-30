@@ -118,7 +118,7 @@ usersRoute.post(function(req, res) {
 					}
 					else{
 						var user = new users_model();
-					    user.name = req.body.username;
+					    user.username = req.body.username;
 					    user.email= req.body.email;
 					    user.password= req.body.password;
 
@@ -164,7 +164,7 @@ usersIDRoute.put(function(req, res) {
 		else{
 	        if (err)
 	            res.status(500).json({ message: 'Database error', data: []});
-        	else if((req.body.name==null)||(req.body.email==null)){
+        	else if((req.body.username==null)||(req.body.email==null)){
 				res.status(500).json({message: "You need both a name and an email to update", data: []});
 			}
 			else{ 	

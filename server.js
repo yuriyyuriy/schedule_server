@@ -1,33 +1,21 @@
-//Default route
-/*var express = require('express');
-var router = express.Router();
-var app = express();
-
-var port = process.env.PORT || 3000;
-console.log("Express server running on " + port);
-
-app.use('/api', router);
-var homeRoute = router.route('/');
-homeRoute.get(function(req, res) {
-      res.json({ message: 'Hello World!' });
-      console.log("get here");
-});
-
-app.listen(process.env.PORT || port);
-*/
-
-
 // Get the packages we need
 var express = require('express');
 var mongoose = require('mongoose');
+
 var Classes = require('./models/classes.js');
 var Reviews = require('./models/reviews.js');
 var Users = require('./models/users.js');
+
 var bodyParser = require('body-parser');
 var router = express.Router();
 
+var users_model = require('./models/users.js');
+var reviews_model = require('./models/reviews.js');
+var classes_model = require('./models/classes.js')
+
 //replace this with your Mongolab URL
 mongoose.connect('mongodb://yuriyt:498rk@ds021010.mlab.com:21010/cs498rk_mp4');
+
 
 
 
@@ -36,11 +24,12 @@ var users_model = mongoose.model('users', Users);
 var classes_model = mongoose.model('classes', Classes);
 var reviews_model = mongoose.model('reviews', Reviews);
 
+
 // Create our Express application
 var app = express();
 
 // Use environment defined port or 3000
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 3000;
 
 //Allow CORS so that backend and frontend could pe put on different servers
 var allowCrossDomain = function(req, res, next) {

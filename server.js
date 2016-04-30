@@ -9,10 +9,6 @@ var Users = require('./models/users.js');
 var bodyParser = require('body-parser');
 var router = express.Router();
 
-var users_model = require('./models/users.js');
-var reviews_model = require('./models/reviews.js');
-var classes_model = require('./models/classes.js')
-
 //replace this with your Mongolab URL
 mongoose.connect('mongodb://yuriyt:498rk@ds021010.mlab.com:21010/cs498rk_mp4');
 

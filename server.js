@@ -20,7 +20,8 @@ app.listen(process.env.PORT || port);
 // Get the packages we need
 var express = require('express');
 var mongoose = require('mongoose');
-var Tasks = require('./models/tasks.js');
+var Classes = require('./models/classes.js');
+var Reviews = require('./models/reviews.js');
 var Users = require('./models/users.js');
 var bodyParser = require('body-parser');
 var router = express.Router();
@@ -32,8 +33,8 @@ mongoose.connect('mongodb://yuriyt:498rk@ds021010.mlab.com:21010/cs498rk_mp4');
 
 
 var users_model = mongoose.model('users', Users);
-var tasks_model = mongoose.model('tasks', Tasks);
-
+var classes_model = mongoose.model('classes', Classes);
+var reviews_model = mongoose.model('reviews', Reviews);
 
 // Create our Express application
 var app = express();

@@ -17,8 +17,8 @@ mongoose.connect('mongodb://yuriyt:498rk@ds021010.mlab.com:21010/cs498rk_mp4');
 
 
 var users_model = mongoose.model('users', Users);
-var classes_model = mongoose.model('classes', Classes);
 var reviews_model = mongoose.model('reviews', Reviews);
+var classes_model = mongoose.model('classes', Classes);
 
 
 // Create our Express application

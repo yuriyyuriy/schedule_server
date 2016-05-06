@@ -171,6 +171,9 @@ usersIDRoute.put(function(req, res) {
 			else{ 	
 		        user.username = req.body.username;
 		        user.email= req.body.email
+		        user.current_schedule= req.body.current_schedule;
+		        user.previous_classes= req.body.previous_classes;
+		        user.reviews= req.body.reviews;
 
 
 	    		users_model.findOne({ $or: [ { 'email': req.body.email }, { 'username': req.body.username } ] }, function(err, i_user){

@@ -478,18 +478,19 @@ reviewsRoute.get(function(req, res) {
   
 });
 reviewsRoute.post(function(req, res) {
-	if((req.body.user_id==null)||(req.body.class_id==null)||(req.body.rating==null)||(req.body.text==null)){
+	if((req.body.user_id==null)||(req.body.class_name==null)||(req.body.class_number==null)||(req.body.difficulty==null)||(req.body.text==null)){
 		res.status(500).json({message: "You're missing certain information about the reviews", data: []});
 	}
 	else{
-		reviews_model.findOne({ 'crn': req.body.crn, 'year': req.body.year, 'semester': req.body.semester }, function(err, found_review){
+		reviews_model.findOne({ 'class_number': req.body.class_number, 'class_name': req.body.class_name, 'user_id': req.body.user_id }, function(err, found_review){
 			if (found_review){
 				res.status(500).json({message: "This review already exists, please choose another one", data: []});
 			}
 			else{
 				var new_review = new reviews_model();
 			    new_review.user_id = req.body.user_id;
-				new_review.class_id= req.body.class_id;
+				new_review.class_name= req.body.class_name;
+				new_review.class_number= req.body.class_number;
 				new_review.rating= req.body.rating;
 				new_review.text = req.body.text;
 
@@ -512,7 +513,7 @@ reviewsRoute.post(function(req, res) {
         				res.end();
         			}
         			else{
-			        	res.status(201).json({ message: 'New review created for '+new_review.class_id, data: new_review });
+			        	res.status(201).json({ message: 'New review created for '+new_review.class_number, data: new_review });
 			    	}
 			    });
 			}
@@ -545,11 +546,12 @@ reviewsIDRoute.put(function(req, res) {
 		else{
 	        if (err)
 	            res.status(500).json({ message: 'Database error', data: []});
-        	else if((req.body.class_id==null)||(req.body.user_id==null)||(req.body.rating==null)||(req.body.text==null)){
+        	else if((req.body.class_name==null)||(req.body.class_number==null)||(req.body.user_id==null)||(req.body.rating==null)||(req.body.text==null)){
 				res.status(500).json({message: "You need both a more information about the review to update", data: []});
 			}
 			else{ 	
-		        found_review.class_id = req.body.class_id;
+		        found_review.class_name = req.body.class_name;
+		        found_review.class_number = req.body.class_number;
 		        found_review.user_id = req.body.user_id;
 		        found_review.rating= req.body.rating;
 		        found_review.text= req.body.text;
@@ -558,9 +560,6 @@ reviewsIDRoute.put(function(req, res) {
 		        }
 		        if (req.body.workload){
 		        	found_review.workload= req.body.workload;
-		        }
-		        if (req.body.condensed){
-		        	found_class.condensed= req.body.condensed;
 		        }
 
 

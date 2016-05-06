@@ -5,8 +5,9 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var reviewSchema = new Schema({
 	user_id: { type: String, required: true },
-	class_id: { type: String, required: true },
-	rating: { type: String, required: true },
+	class_name: { type: String, required: true },
+	class_number: { type: String, required: true },
+	difficulty: { type: String, required: true },
 	text: { type: String, required: true },
 	average_gpa: String,
 	workload: String

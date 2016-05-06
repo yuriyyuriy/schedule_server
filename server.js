@@ -496,8 +496,14 @@ reviewsRoute.post(function(req, res) {
 				if (req.body.average_gpa){
 					new_review.average_gpa= req.body.average_gpa;
 				}
+				else{
+					new_review.average_gpa= "N/A";
+				}
 				if (req.body.workload){
 					new_review.workload= req.body.workload;
+				}
+				else{
+					new_review.workload= "N/A";
 				}
 			    // save the bear and check for errors
 			    new_review.save(function(err) {

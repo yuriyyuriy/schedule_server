@@ -491,7 +491,7 @@ reviewsRoute.post(function(req, res) {
 			    new_review.user_id = req.body.user_id;
 				new_review.class_name= req.body.class_name;
 				new_review.class_number= req.body.class_number;
-				new_review.rating= req.body.rating;
+				new_review.difficulty= req.body.difficulty;
 				new_review.text = req.body.text;
 
 				if (req.body.average_gpa){
@@ -546,14 +546,14 @@ reviewsIDRoute.put(function(req, res) {
 		else{
 	        if (err)
 	            res.status(500).json({ message: 'Database error', data: []});
-        	else if((req.body.class_name==null)||(req.body.class_number==null)||(req.body.user_id==null)||(req.body.rating==null)||(req.body.text==null)){
+        	else if((req.body.class_name==null)||(req.body.class_number==null)||(req.body.user_id==null)||(req.body.difficulty==null)||(req.body.text==null)){
 				res.status(500).json({message: "You need both a more information about the review to update", data: []});
 			}
 			else{ 	
 		        found_review.class_name = req.body.class_name;
 		        found_review.class_number = req.body.class_number;
 		        found_review.user_id = req.body.user_id;
-		        found_review.rating= req.body.rating;
+		        found_review.difficulty= req.body.difficulty;
 		        found_review.text= req.body.text;
 		        if (req.body.average_gpa){
 		        	found_review.average_gpa= req.body.average_gpa;

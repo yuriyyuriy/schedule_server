@@ -170,8 +170,17 @@ usersIDRoute.put(function(req, res) {
 			}
 			else{ 	
 		        user.username = req.body.username;
-		        user.email= req.body.email
+		        user.email= req.body.email;
 		        user.current_schedule= req.body.current_schedule;
+		        if (user.current_schedule.length==1){
+		        	// dirty, dirty hack
+			        if (user.current_schedule[0].indexOf(',') > -1){
+	        			user.current_schedule=JSON.stringify(user.current_schedule[0]).split(",");
+	        			user.current_schedule[0]= user.current_schedule[0].replace('\"','');
+	        			user.current_schedule[user.current_schedule.length-1]= user.current_schedule[user.current_schedule.length-1].replace('\"','');
+	        		}
+	        	}
+		        
 		        user.previous_classes= req.body.previous_classes;
 		        user.reviews= req.body.reviews;
 

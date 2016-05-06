@@ -478,7 +478,7 @@ reviewsRoute.get(function(req, res) {
   
 });
 reviewsRoute.post(function(req, res) {
-	if((req.body.user_id==null)||(req.body.class_name==null)||(req.body.class_number==null)||(req.body.difficulty==null)||(req.body.text==null)){
+	if((req.body.user_id==null)||(req.body.class_name==null)||(req.body.class_number==null)||(req.body.difficulty==null)){
 		res.status(500).json({message: "You're missing certain information about the reviews", data: []});
 	}
 	else{
@@ -499,6 +499,12 @@ reviewsRoute.post(function(req, res) {
 				}
 				else{
 					new_review.average_gpa= "N/A";
+				}
+				if (req.body.text){
+					new_review.text= req.body.text;
+				}
+				else{
+					new_review.text= "N/A";
 				}
 				if (req.body.workload){
 					new_review.workload= req.body.workload;

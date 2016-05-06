@@ -25,12 +25,12 @@ var classes_model = mongoose.model('classes', Classes);
 var app = express();
 
 // Use environment defined port or 3000
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 8080;
 
 //Allow CORS so that backend and frontend could pe put on different servers
 var allowCrossDomain = function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   res.header("Access-Control-Allow-Headers", "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept");
   next();
 };
@@ -103,6 +103,7 @@ usersRoute.get(function(req, res) {
   
 });
 usersRoute.post(function(req, res) {
+	console.log("we here");
 	if((req.body.username==null)||(req.body.email==null)||(req.body.password==null)){
 		res.status(500).json({message: "You need both a username, password and email", data: []});
 	}
@@ -218,29 +219,33 @@ usersIDRoute.delete(function(req, res) {
 });
 
 verificationRoute.post(function(req, res) {
-	if((req.body.username==null)||(req.body.password==null)){
-		res.status(500).json({message: "You need both a username and password to verify", data: []});
+	if((req.body.email==null)||(req.body.password==null)){
+		res.status(500).json({message: "You need both a email and password to verify", data: []});
 	}
 	else{
-		User.findOne({ username: req.body.username }, function(err, user) {
+		users_model.findOne({ email: req.body.email }, function(err, user) {
 	        if (err){
                 res.status(500).json({ message: 'Database error', data: []});
             }
-
+            else if (!user){
+            	res.status(404).json({ message: 'User/Password pair not found', data: []});
+            }
+            else{
 	        // test a matching password
-	        user.comparePassword(req.body.password, function(err, isMatch) {
-	            if (err){
-                	res.status(500).json({ message: 'Database error', data: []});
-            	}
-            	else{
-            		if (!isMatch){
-            			res.status(404).json({ message: 'User/Password pair not found', data: []});
-            		}
-            		else{
-            			res.status(200).json({ message: 'Password verified', data: []});
-            		}
-            	}
-	        });
+		        user.comparePassword(req.body.password, function(err, isMatch) {
+		            if (err){
+	                	res.status(500).json({ message: 'Database error', data: []});
+	            	}
+	            	else{
+	            		if (!isMatch){
+	            			res.status(404).json({ message: 'User/Password pair not found', data: []});
+	            		}
+	            		else{
+	            			res.status(200).json({ message: 'Password verified', data: user});
+	            		}
+	            	}
+		        });
+	    	}
     	});
 	}
 
